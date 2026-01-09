@@ -15,8 +15,8 @@ const { PORT, FRONTEND_URL, NODE_ENV } = require('./src/config/constants');
 const { testConnection } = require('./src/config/database');
 const marketsRoutes = require('./src/routes/markets.routes');
 const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler.middleware');
-const { requestTelemetry } = require('./src/middleware/telemetry.middleware');
-const { refreshConfig, cleanupOldLogs } = require('./src/services/telemetry.service');
+// const { requestTelemetry } = require('./src/middleware/telemetry.middleware');
+// const { refreshConfig, cleanupOldLogs } = require('./src/services/telemetry.service');
 
 // Create Express app
 const app = express();
@@ -74,7 +74,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/markets', requestTelemetry, marketsRoutes);
+app.use('/api/markets', marketsRoutes);
 
 // 404 handler (must be after all routes)
 app.use(notFoundHandler);
@@ -93,10 +93,10 @@ async function startServer() {
       process.exit(1);
     }
 
-    // Load telemetry config and schedule refresh/cleanup
-    await refreshConfig();
-    setInterval(() => refreshConfig(), 60 * 1000);
-    setInterval(() => cleanupOldLogs(), 6 * 60 * 60 * 1000);
+    // Load telemetry config and schedule refresh/cleanup (disabled - files not implemented yet)
+    // await refreshConfig();
+    // setInterval(() => refreshConfig(), 60 * 1000);
+    // setInterval(() => cleanupOldLogs(), 6 * 60 * 60 * 1000);
 
     // Start listening
     app.listen(PORT, () => {
