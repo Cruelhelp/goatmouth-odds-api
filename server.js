@@ -14,6 +14,7 @@ const morgan = require('morgan');
 const { PORT, FRONTEND_URL, NODE_ENV } = require('./src/config/constants');
 const { testConnection } = require('./src/config/database');
 const marketsRoutes = require('./src/routes/markets.routes');
+const analyticsRoutes = require('./src/routes/analytics.routes');
 const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler.middleware');
 // const { requestTelemetry } = require('./src/middleware/telemetry.middleware');
 // const { refreshConfig, cleanupOldLogs } = require('./src/services/telemetry.service');
@@ -75,6 +76,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/markets', marketsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // 404 handler (must be after all routes)
 app.use(notFoundHandler);
