@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: goatmouth-odds-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://goatmouth.com
+      - key: HOUSE_MARGIN
+        value: "0.02"
+      - key: DEFAULT_POOL_SIZE
+        value: "1000"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
