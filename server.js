@@ -15,6 +15,8 @@ const { PORT, FRONTEND_URL, NODE_ENV } = require('./src/config/constants');
 const { testConnection } = require('./src/config/database');
 const marketsRoutes = require('./src/routes/markets.routes');
 const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler.middleware');
+const { requestTelemetry } = require('./src/middleware/telemetry.middleware');
+const { refreshConfig, cleanupOldLogs } = require('./src/services/telemetry.service');
 
 // Create Express app
 const app = express();
@@ -26,7 +28,16 @@ app.use(helmet());
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests from frontend URL or no origin (like Postman)
-    const allowedOrigins = [FRONTEND_URL, 'http://localhost:8000', 'http://127.0.0.1:8000'];
+    const allowedOrigins = [
+      FRONTEND_URL,
+      'http://localhost:8000',
+      'http://127.0.0.1:8000',
+      'http://localhost:5500',
+      'http://127.0.0.1:5500',
+      'https://goatmouth.com',
+      'https://www.goatmouth.com',
+      'https://goatmouth.vercel.app'
+    ];
 
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -63,7 +74,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/markets', marketsRoutes);
+app.use('/api/markets', requestTelemetry, marketsRoutes);
 
 // 404 handler (must be after all routes)
 app.use(notFoundHandler);
@@ -81,6 +92,11 @@ async function startServer() {
       console.error('Failed to connect to database. Exiting...');
       process.exit(1);
     }
+
+    // Load telemetry config and schedule refresh/cleanup
+    await refreshConfig();
+    setInterval(() => refreshConfig(), 60 * 1000);
+    setInterval(() => cleanupOldLogs(), 6 * 60 * 60 * 1000);
 
     // Start listening
     app.listen(PORT, () => {
